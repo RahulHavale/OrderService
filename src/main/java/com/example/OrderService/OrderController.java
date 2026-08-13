@@ -2,7 +2,6 @@ package com.example.OrderService;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,34 +15,41 @@ public class OrderController {
     private final OrderService service;
 
     @PostMapping
-    public ResponseEntity<OrderResponse> createOrder(@RequestBody OrderRequest request){
+    public ResponseEntity<OrderResponse> createOrder(
+            @RequestBody OrderRequest request) {
 
         OrderResponse order = service.createOrder(request);
         return new ResponseEntity<>(order, HttpStatus.CREATED);
     }
 
     @GetMapping
-    public List<OrderResponse> getAllOrders(){
+    public ResponseEntity<List<OrderResponse>> getAllOrders() {
 
-        return service.getAllOrders();
+        return ResponseEntity.ok(service.getAllOrders());
     }
 
     @GetMapping("/{id}")
-    public OrderResponse getOrder(@PathVariable Long id){
+    public ResponseEntity<OrderResponse> getOrder(
+            @PathVariable Long id) {
 
-        return service.getOrder(id);
+        return ResponseEntity.ok(service.getOrder(id));
     }
 
     @PutMapping("/{id}")
-    public void updateOrder(@PathVariable Long id,
-                            @RequestBody OrderRequest request){
+    public ResponseEntity<OrderResponse> updateOrder(
+            @PathVariable Long id,
+            @RequestBody OrderRequest request) {
 
-        service.updateOrder(id,request);
+        return ResponseEntity.ok(
+                service.updateOrder(id, request));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteOrder(@PathVariable Long id){
+    public ResponseEntity<String> deleteOrder(
+            @PathVariable Long id) {
 
         service.deleteOrder(id);
+
+        return ResponseEntity.ok("Order deleted successfully.");
     }
 }

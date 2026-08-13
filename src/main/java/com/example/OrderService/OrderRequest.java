@@ -14,4 +14,6 @@ public class OrderRequest {
     private Integer quantity;
 
     private Double totalAmount;
+
+    private String paymentMethod;
 }
