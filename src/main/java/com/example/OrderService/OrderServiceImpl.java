@@ -26,14 +26,14 @@ public class OrderServiceImpl implements OrderService {
     private final PaymentClient paymentClient;
 
     @Override
-    @CircuitBreaker(
-            name = "inventoryService",
-            fallbackMethod = "inventoryFallback"
-    )
-    @Retry(
-            name = "inventoryService",
-            fallbackMethod = "inventoryFallback"
-    )
+//    @CircuitBreaker(
+//            name = "inventoryService",
+//            fallbackMethod = "inventoryFallback"
+//    )
+//    @Retry(
+//            name = "inventoryService",
+//            fallbackMethod = "inventoryFallback"
+//    )
     public OrderResponse createOrder(OrderRequest request) {
 
         ProductResponse product =
@@ -57,16 +57,15 @@ public class OrderServiceImpl implements OrderService {
                     "Insufficient stock available.");
         }
 
-        PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setAmount(product.getPrice() * request.getQuantity());
-        paymentRequest.setPaymentMethod(request.getPaymentMethod());
-
-        PaymentResponse paymentResponse =
-                paymentClient.makePayment(paymentRequest);
-
-        if (paymentResponse == null) {
-            throw new PaymentFailedException("Payment failed.");
-        }
+//        PaymentRequest paymentRequest = new PaymentRequest();
+//        paymentRequest.setAmount(product.getPrice() * request.getQuantity());
+//        paymentRequest.setPaymentMethod(request.getPaymentMethod());
+//        PaymentResponse paymentResponse =
+//                paymentClient.makePayment(paymentRequest);
+//
+//        if (paymentResponse == null) {
+//            throw new PaymentFailedException("Payment failed.");
+//        }
 
         inventoryClient.reduceStock(
                 request.getProductId(),
@@ -82,6 +81,17 @@ public class OrderServiceImpl implements OrderService {
         entity.setUpdatedDate(LocalDate.now());
 
         repository.save(entity);
+
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setOrderId(entity.getOrderId());
+        paymentRequest.setAmount(product.getPrice() * request.getQuantity());
+        paymentRequest.setPaymentMethod(request.getPaymentMethod());
+        PaymentResponse paymentResponse =
+                paymentClient.makePayment(paymentRequest);
+
+        if (paymentResponse == null) {
+            throw new PaymentFailedException("Payment failed.");
+        }
 
         return mapper.map(entity, OrderResponse.class);
     }
